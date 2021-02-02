@@ -2,27 +2,31 @@
     <sys_script_include action="INSERT_OR_UPDATE">
         <access>package_private</access>
         <active>true</active>
-        <api_name>global.CMDBQueryBuilderAPI</api_name>
+        <api_name>global.CMDBCustomAPI</api_name>
         <caller_access/>
         <client_callable>false</client_callable>
         <description/>
-        <name>CMDBQueryBuilderAPI</name>
-        <script><![CDATA[var CMDBQueryBuilderAPI = Class.create();
-CMDBQueryBuilderAPI.prototype = {
+        <name>CMDBCustomAPI</name>
+        <script><![CDATA[var CMDBCustomAPI = Class.create();
+CMDBCustomAPI.prototype = {
     initialize: function () {
         
     },
-    getCIfromCMDBQuery: function(QueryBuilderName) {
+    getCIfromCMDBQuery: function(QueryBuilderName, paramFields) {
         var result = SNC.CMDBQueryBuilderAPI.getSavedQueryExecutionDetails(QueryBuilderName, true);
-
-        if (!result) return;
+		if (!result) return; // guard
+		
         resultJSON = JSON.parse(result);
 
-        if (!resultJSON.hasOwnProperty('status') || !resultJSON.hasOwnProperty('table_name') || !resultJSON.hasOwnProperty('query_id')) return;
+        if (!resultJSON.hasOwnProperty('status') 
+			|| !resultJSON.hasOwnProperty('table_name') 
+			|| !resultJSON.hasOwnProperty('query_id')) return; // guard
+		
         if (resultJSON.status == "COMPLETE") {
-            var arrayFields = this._getFieldsToDisplayFromQuery(resultJSON.table_name); // list of fields to retrieve
+            var arrayFields = 
+				paramFields ? paramFields.split(',') : this._getFieldsToDisplayFromQuery(resultJSON.table_name);
             var arrayJSONQBResults = [];
-
+			
             var grQBResult = new GlideRecord(resultJSON.table_name);
             grQBResult.addQuery('query', resultJSON.query_id);
             grQBResult.query();
@@ -54,19 +58,19 @@ CMDBQueryBuilderAPI.prototype = {
         return arrayFields;
     },
 
-    type: 'CMDBQueryBuilderAPI'
+    type: 'CMDBCustomAPI'
 };]]></script>
         <sys_class_name>sys_script_include</sys_class_name>
         <sys_created_by>admin</sys_created_by>
         <sys_created_on>2021-02-01 14:16:56</sys_created_on>
         <sys_id>bb150b3d2fce2410b60a56e62799b63f</sys_id>
-        <sys_mod_count>3</sys_mod_count>
-        <sys_name>CMDBQueryBuilderAPI</sys_name>
-        <sys_package display_value="CMDBQueryBuilderAPI" source="a3b1cf752fce2410b60a56e62799b613">a3b1cf752fce2410b60a56e62799b613</sys_package>
+        <sys_mod_count>10</sys_mod_count>
+        <sys_name>CMDBCustomAPI</sys_name>
+        <sys_package display_value="CMDB Custom API" source="a3b1cf752fce2410b60a56e62799b613">a3b1cf752fce2410b60a56e62799b613</sys_package>
         <sys_policy/>
-        <sys_scope display_value="CMDBQueryBuilderAPI">a3b1cf752fce2410b60a56e62799b613</sys_scope>
+        <sys_scope display_value="CMDB Custom API">a3b1cf752fce2410b60a56e62799b613</sys_scope>
         <sys_update_name>sys_script_include_bb150b3d2fce2410b60a56e62799b63f</sys_update_name>
         <sys_updated_by>admin</sys_updated_by>
-        <sys_updated_on>2021-02-01 14:46:08</sys_updated_on>
+        <sys_updated_on>2021-02-02 09:21:36</sys_updated_on>
     </sys_script_include>
 </record_update>

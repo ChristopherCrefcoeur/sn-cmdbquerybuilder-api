@@ -9,20 +9,42 @@
         <name>Get Query Result</name>
         <operation_script><![CDATA[(function process(/*RESTAPIRequest*/ request, /*RESTAPIResponse*/ response) {
 
+    // get the queryName parameter from the url
     response.setContentType('application/json');
     var queryName = decodeURI(request.pathParams.queryName);
 
-    if (!queryName) {
+    var paramFields = request.queryParams["sysparm_fields"].toString() || "";
+    
+    // guard
+    if (!queryName)
+        handleError("The paramer query is mandatory");
+
+
+
+    // call the custom CMDB api
+    var result = new global.CMDBCustomAPI().getCIfromCMDBQuery(queryName, paramFields);
+
+    
+    // guard
+    if (!result) {
+        handleError("Unexpected error, the result can't be empty");
+    }
+    
+    
+    return result;
+
+    /**
+     * 
+     * @param {String} message give a error message that will be displayed in the error message of the HTTP request
+     */
+    function handleError(message) {
         exception = new sn_ws_err.ServiceError().setStatus(400);
-        exception.setMessage("The paramer query is mandatory");
+        exception.setMessage(message);
         throw exception;
     }
 
-    var result = new global.CMDBQueryBuilderAPI().getCIfromCMDBQuery(queryName);
-    return result;
-
 })(request, response);]]></operation_script>
-        <operation_uri>/api/192469/cmdbquerybuilderapi/{queryName}</operation_uri>
+        <operation_uri>/api/192469/cmdbcustomapi/{queryName}</operation_uri>
         <produces>application/json,application/xml,text/xml</produces>
         <produces_customized>false</produces_customized>
         <relative_path>/{queryName}</relative_path>
@@ -30,20 +52,20 @@
         <requires_acl_authorization>true</requires_acl_authorization>
         <requires_authentication>true</requires_authentication>
         <requires_snc_internal_role>true</requires_snc_internal_role>
-        <short_description/>
+        <short_description>Give a CMDB Query and the fields you want to retrieve</short_description>
         <sys_class_name>sys_ws_operation</sys_class_name>
         <sys_created_by>admin</sys_created_by>
         <sys_created_on>2021-02-01 14:37:25</sys_created_on>
         <sys_id>8fb987392f026410b60a56e62799b6d4</sys_id>
-        <sys_mod_count>5</sys_mod_count>
+        <sys_mod_count>13</sys_mod_count>
         <sys_name>Get Query Result</sys_name>
-        <sys_package display_value="CMDBQueryBuilderAPI" source="a3b1cf752fce2410b60a56e62799b613">a3b1cf752fce2410b60a56e62799b613</sys_package>
+        <sys_package display_value="CMDB Custom API" source="a3b1cf752fce2410b60a56e62799b613">a3b1cf752fce2410b60a56e62799b613</sys_package>
         <sys_policy/>
-        <sys_scope display_value="CMDBQueryBuilderAPI">a3b1cf752fce2410b60a56e62799b613</sys_scope>
+        <sys_scope display_value="CMDB Custom API">a3b1cf752fce2410b60a56e62799b613</sys_scope>
         <sys_update_name>sys_ws_operation_8fb987392f026410b60a56e62799b6d4</sys_update_name>
         <sys_updated_by>admin</sys_updated_by>
-        <sys_updated_on>2021-02-01 14:45:24</sys_updated_on>
-        <web_service_definition display_value="CMDBQueryBuilderAPI">d63903b12f026410b60a56e62799b661</web_service_definition>
+        <sys_updated_on>2021-02-02 09:21:06</sys_updated_on>
+        <web_service_definition display_value="CMDB Custom API">d63903b12f026410b60a56e62799b661</web_service_definition>
         <web_service_version/>
     </sys_ws_operation>
 </record_update>
