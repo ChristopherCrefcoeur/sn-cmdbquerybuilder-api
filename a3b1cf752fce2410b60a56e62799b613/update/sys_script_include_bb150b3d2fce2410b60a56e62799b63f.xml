@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_script_include">
+    <sys_script_include action="INSERT_OR_UPDATE">
+        <access>package_private</access>
+        <active>true</active>
+        <api_name>global.CMDBCustomAPI</api_name>
+        <caller_access/>
+        <client_callable>false</client_callable>
+        <description/>
+        <name>CMDBCustomAPI</name>
+        <script><![CDATA[var CMDBCustomAPI = Class.create();
+CMDBCustomAPI.prototype = {
+    initialize: function () {
+        
+    },
+    getCIfromCMDBQuery: function(QueryBuilderName, paramFields) {
+        var result = SNC.CMDBQueryBuilderAPI.getSavedQueryExecutionDetails(QueryBuilderName, true);
+		if (!result) return; // guard
+		
+        resultJSON = JSON.parse(result);
+
+        if (!resultJSON.hasOwnProperty('status') 
+			|| !resultJSON.hasOwnProperty('table_name') 
+			|| !resultJSON.hasOwnProperty('query_id')) return; // guard
+		
+        if (resultJSON.status == "COMPLETE") {
+            var arrayFields = 
+				paramFields ? paramFields.split(',') : this._getFieldsToDisplayFromQuery(resultJSON.table_name);
+            var arrayJSONQBResults = [];
+			
+            var grQBResult = new GlideRecord(resultJSON.table_name);
+            grQBResult.addQuery('query', resultJSON.query_id);
+            grQBResult.query();
+            while (grQBResult.next()) {
+                var jsonRow = {};
+                for (var i = 0; i < arrayFields.length; i++) {
+                    jsonRow[arrayFields[i]] = grQBResult.getElement(arrayFields[i]).getDisplayValue();
+                }
+                arrayJSONQBResults.push(jsonRow);
+            }
+            return arrayJSONQBResults;
+        }
+    },
+    _getFieldsToDisplayFromQuery: function(tableName) {
+        var arrayFields = [];
+        var grUiList = new GlideRecord('sys_ui_list');
+        grUiList.addQuery('name', tableName);
+        grUiList.addEncodedQuery("sys_userDYNAMIC90d1921e5f510100a9ad2572f2b477fe"); // is DYNAMIC me
+        grUiList.query();
+        if (grUiList.next()) {
+            var grFields = new GlideRecord('sys_ui_list_element');
+            grFields.addQuery('list_id', grUiList.getUniqueValue());
+            grFields.orderBy('position');
+            grFields.query();
+            while (grFields.next()) {
+                arrayFields.push(grFields.getValue('element'));
+            }
+        }
+        return arrayFields;
+    },
+
+    type: 'CMDBCustomAPI'
+};]]></script>
+        <sys_class_name>sys_script_include</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2021-02-01 14:16:56</sys_created_on>
+        <sys_id>bb150b3d2fce2410b60a56e62799b63f</sys_id>
+        <sys_mod_count>10</sys_mod_count>
+        <sys_name>CMDBCustomAPI</sys_name>
+        <sys_package display_value="CMDB Custom API" source="a3b1cf752fce2410b60a56e62799b613">a3b1cf752fce2410b60a56e62799b613</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="CMDB Custom API">a3b1cf752fce2410b60a56e62799b613</sys_scope>
+        <sys_update_name>sys_script_include_bb150b3d2fce2410b60a56e62799b63f</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2021-02-02 09:21:36</sys_updated_on>
+    </sys_script_include>
+</record_update>
